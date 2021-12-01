@@ -1,3 +1,8 @@
 .gradle
 kotlin/.idea
 build
+rust/debug/
+rust/target/
+rust/Cargo.lock
+**/*.rs.bk
+*.pdb
