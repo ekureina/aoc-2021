@@ -76,6 +76,7 @@ int solution2(char** array) {
 int main(int argc, char *args[]) {
     char* test_filename = get_test_input_filename(args);
     FILE* test_file = fopen(test_filename, "r");
+    free(test_filename);
     if (test_file == NULL) {
         return -1;
     }
@@ -90,6 +91,7 @@ int main(int argc, char *args[]) {
 
     char* filename = get_input_filename(args);
     FILE* file = fopen(filename, "r");
+    free(filename);
     if (file == NULL) {
         return -1;
     }
@@ -100,6 +102,6 @@ int main(int argc, char *args[]) {
     fclose(file);
     printf("%d\n", solution1(array));
     printf("%d\n", solution2(array));
-    free_str_array(test_array);
+    free_str_array(array);
     return 0;
 }

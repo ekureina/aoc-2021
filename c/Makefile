@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Werror -Wno-unused-variable -Iinclude -std=gnu17 -O3
+CFLAGS=-Wall -Werror -Wno-unused-variable -Iinclude -std=gnu17 -O3 -g
 SRCS=$(wildcard src/*.c)
 INCLUDES=$(wildcard include/*.h)
 EXECUTABLES=$(patsubst src/%.c, build/%, $(SRCS))

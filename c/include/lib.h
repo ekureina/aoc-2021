@@ -39,7 +39,7 @@ char* get_input_filename(char *args[]) {
 void free_str_array(char** array) {
     if (array != NULL) {
         char** cleanup_helper = array;
-        for (char** cleanup_helper = array; !*cleanup_helper; cleanup_helper++) {
+        for (char** cleanup_helper = array; *cleanup_helper; cleanup_helper++) {
             free(*cleanup_helper);
         }
         free(array);
@@ -83,7 +83,11 @@ char** load_strs(FILE* file) {
         array_len++;
     } while (1);
     if (feof(file)) {
-        array[array_len] = NULL;
+        // Free extra line allocation created if needed
+        if (array[array_len] != NULL) {
+            free(array[array_len]);
+            array[array_len] = NULL;
+        }
         return array;
     } else { // Some error processing the file
         if (array != NULL) {
