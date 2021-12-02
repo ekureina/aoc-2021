@@ -4,5 +4,6 @@ build
 rust/debug/
 rust/target/
 rust/Cargo.lock
+c/build/
 **/*.rs.bk
 *.pdb
