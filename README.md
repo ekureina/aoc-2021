@@ -2,13 +2,7 @@
 
 Welcome to the Advent of Code[^aoc] Kotlin project created by [ekureina][github] using the [Advent of Code Kotlin Template][template] delivered by JetBrains.
 
-In this repository, ekureina is about to provide solutions for the puzzles using [Kotlin][kotlin] language.
-
-If you stuck with Kotlin-specific questions or anything related to this template, check out the following resources:
-
-- [Kotlin docs][docs]
-- [Kotlin Slack][slack]
-- Template [issue tracker][issues]
+I provide solutions in this Repository for AoC 2021 in Kotlin, Rust, and C. Each language has its own folder, and the kotlin folder is using the generated template.
 
 
 [^aoc]:
