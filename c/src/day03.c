@@ -67,23 +67,19 @@ int solution2(char** array, int array_len) {
 
     for (int i = 0; i < bit_len; ++i) {
         for (int j = 0; j < array_len; ++j) {
-            if (included_count1 > 1) {
-                if (!excluded1[j]) {
-                    if (array[j][i] == '0') {
-                        bit_counts1[i].zeros++;
-                    } else {
-                        bit_counts1[i].ones++;
-                    }
+            if (included_count1 > 1 && !excluded1[j]) {
+                if (array[j][i] == '0') {
+                    bit_counts1[i].zeros++;
+                } else {
+                    bit_counts1[i].ones++;
                 }
             }
 
-            if (included_count2 > 1) {
-                if (!excluded2[j]) {
-                    if (array[j][i] == '0') {
-                        bit_counts2[i].zeros++;
-                    } else {
-                        bit_counts2[i].ones++;
-                    }
+            if (included_count2 > 1 && !excluded2[j]) {
+                if (array[j][i] == '0') {
+                    bit_counts2[i].zeros++;
+                } else {
+                    bit_counts2[i].ones++;
                 }
             }
         }
@@ -100,12 +96,12 @@ int solution2(char** array, int array_len) {
             }
 
             if (included_count2 > 1) {
-                if (bit_counts2[i].ones > bit_counts2[i].zeros) {
-                    included_count2 -= (array[j][i] == '0') && !excluded2[j];
-                    excluded2[j] |= (array[j][i] == '0');
-                } else {
+                if (bit_counts2[i].zeros <= bit_counts2[i].ones) {
                     included_count2 -= (array[j][i] == '1') && !excluded2[j];
                     excluded2[j] |= (array[j][i] == '1');
+                } else {
+                    included_count2 -= (array[j][i] == '0') && !excluded2[j];
+                    excluded2[j] |= (array[j][i] == '0');
                 }
             }
             if (included_count1 == 1 && included_count2 == 1) break;
@@ -119,7 +115,6 @@ int solution2(char** array, int array_len) {
     int oxy_rating = -1;
     int co2_rating = -1;
     for (int i = 0; i < array_len && (oxy_rating == -1 || co2_rating == -1); ++i) {
-
         if (!excluded1[i]) {
             oxy_rating = strtol(array[i], NULL, 2);
         }
