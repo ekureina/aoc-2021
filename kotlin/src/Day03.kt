@@ -74,7 +74,6 @@ fun main() {
             }
         }.first()
 
-        println("oxy: ${parseLong(oxygen, 2)}; co2: ${parseLong(co2, 2)}")
         return parseLong(oxygen, 2) * parseLong(co2, 2)
     }
 
