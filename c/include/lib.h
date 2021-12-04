@@ -100,6 +100,12 @@ char** load_strs(FILE* file) {
     }
 }
 
+int get_array_len(char** array) {
+    char** watcher = array;
+    while (*++watcher != NULL);
+    return watcher - array;
+}
+
 int load_ints(FILE* file, int** pointer) {
     int array_cap = 5;
     int array_len = 0;
