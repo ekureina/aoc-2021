@@ -13,10 +13,10 @@ fun main() {
             val xSequence = if (start.x > end.x) {
                 start.x downTo end.x
             } else {
-                start.x..end.y
+                start.x..end.x
             }
 
-            val ySequence = if (start.y > end.x) {
+            val ySequence = if (start.y > end.y) {
                 start.y downTo end.y
             } else {
                 start.y..end.y
@@ -67,7 +67,9 @@ fun main() {
                             listOf()
                         }
                     } else {
-                        generateDiagonalPoints(other.start, other.end).filter { point -> point.x == start.x }.toList()
+                        generateDiagonalPoints(other.start, other.end).filter { point ->
+                            point.x == start.x && point.y in (minY()..maxY())
+                        }.toList()
                     }
                 } else if (orientation() == LineOrientation.HORIZONTAL) {
                     if (other.orientation() == LineOrientation.VERTICAL) {
@@ -77,13 +79,19 @@ fun main() {
                             listOf()
                         }
                     } else {
-                        generateDiagonalPoints(other.start, other.end).filter { point -> point.y == start.y }.toList()
+                        generateDiagonalPoints(other.start, other.end).filter { point ->
+                            point.y == start.y && point.x in (minX()..maxX())
+                        }.toList()
                     }
                 } else {
                     if (other.orientation() == LineOrientation.VERTICAL) {
-                        generateDiagonalPoints(start, end).filter { point -> point.x == other.start.x }.toList()
+                        generateDiagonalPoints(start, end).filter { point ->
+                            point.x == other.start.x && point.y in (other.minY()..other.maxY())
+                        }.toList()
                     } else {
-                        generateDiagonalPoints(start, end).filter { point -> point.y == other.start.y }.toList()
+                        generateDiagonalPoints(start, end).filter { point ->
+                            point.y == other.start.y && point.x in (other.minX()..other.maxX())
+                        }.toList()
                     }
                 }
             }
@@ -113,6 +121,9 @@ fun main() {
             Line(lineList[0], lineList[1])
         }
 
+        val dimensionality = lines.fold(Point(0,0)) { dimension, line ->
+            Point(maxOf(dimension.x, line.maxX()), maxOf(dimension.y, line.maxY()))
+        }.let { point -> Point(point.x + 1, point.y + 1) }
         return lines.asSequence().map { line ->
             lines.dropWhile { otherLine -> otherLine != line }.drop(1).map(line::intersection)
         }.flatten().flatten().distinct().count()
