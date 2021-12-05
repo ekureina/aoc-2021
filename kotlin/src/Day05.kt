@@ -1,4 +1,5 @@
 import java.lang.Integer.parseInt
+import kotlin.math.abs
 
 enum class LineOrientation {
     VERTICAL,
@@ -9,7 +10,7 @@ enum class LineOrientation {
 fun main() {
     data class Point(val x: Int, val y: Int)
     data class Line(val start: Point, val end: Point) {
-        fun generateDiagonalPoints(start: Point, end: Point): Set<Point> {
+        fun generateDiagonalPoints(start: Point, end: Point): List<Point> {
             val xSequence = if (start.x > end.x) {
                 start.x downTo end.x
             } else {
@@ -22,7 +23,7 @@ fun main() {
                 start.y..end.y
             }
 
-            return xSequence.zip(ySequence).map { (x, y) -> Point(x, y) }.toSet()
+            return xSequence.zip(ySequence).map { (x, y) -> Point(x, y) }
         }
 
         fun orientation(): LineOrientation {
@@ -35,6 +36,10 @@ fun main() {
             }
         }
 
+        fun slope(): Int {
+            return (end.y - start.y)/(end.x - start.x)
+        }
+
         fun minX(): Int = minOf(start.x, end.x)
 
         fun minY(): Int = minOf(start.y, end.y)
@@ -43,55 +48,141 @@ fun main() {
 
         fun maxY(): Int = maxOf(start.y, end.y)
 
-        fun intersection(other: Line): List<Point> {
-            return if (orientation() == other.orientation()) {
-                if (orientation() == LineOrientation.VERTICAL && start.x == other.start.x) {
-                    (minY()..maxY()).intersect(other.minY()..other.maxY()).map { y ->
-                        Point(start.x, y)
-                    }
-                } else if (orientation() == LineOrientation.HORIZONTAL && start.y == other.start.y) {
-                    (minX()..maxX()).intersect(other.minX()..other.maxX()).map { x ->
-                        Point(x, start.y)
-                    }
-                } else if (orientation() == LineOrientation.DIAGONAL) {
-                    generateDiagonalPoints(start, end).intersect(generateDiagonalPoints(other.start, other.end)).toList()
+        private fun horizontalVerticalIntersect(horizontalLine: Line, verticalLine: Line): List<Point> {
+            return if (verticalLine.start.x in (horizontalLine.minX()..horizontalLine.maxX()) &&
+                horizontalLine.start.y in (verticalLine.minY()..verticalLine.maxY())) {
+                listOf(Point(verticalLine.start.x, horizontalLine.start.y))
+            } else {
+                listOf()
+            }
+        }
+
+        private fun verticalVerticalIntersect(verticalLine1: Line, verticalLine2: Line): List<Point> {
+            return if (verticalLine1.start.x == verticalLine2.start.x) {
+                val minIntersect = maxOf(verticalLine1.minY(), verticalLine2.minY())
+                val maxIntersect = minOf(verticalLine1.maxY(), verticalLine2.maxY())
+                (minIntersect..maxIntersect).map { y ->
+                    Point(verticalLine1.start.x, y)
+                }
+            } else {
+                listOf()
+            }
+        }
+
+        private fun horizontalHorizontalIntersect(horizontalLine1: Line, horizontalLine2: Line): List<Point> {
+            return if (horizontalLine1.start.y == horizontalLine2.start.y) {
+                val minIntersect = maxOf(horizontalLine1.minX(), horizontalLine2.minX())
+                val maxIntersect = minOf(horizontalLine1.maxX(), horizontalLine2.maxX())
+                (minIntersect..maxIntersect).map { x ->
+                    Point(x, horizontalLine1.start.y)
+                }
+            } else {
+                listOf()
+            }
+        }
+
+        private fun diagonalDiagonalIntersect(diagonalLine1: Line, diagonalLine2: Line): List<Point> {
+            return if ((diagonalLine1.slope() > 0) xor (diagonalLine2.slope() > 0)) {
+                if (diagonalLine1.start == diagonalLine2.start || diagonalLine1.start == diagonalLine2.end) {
+                    listOf(diagonalLine1.start)
+                } else if (diagonalLine1.end == diagonalLine2.start || diagonalLine1.end == diagonalLine2.start) {
+                    listOf(diagonalLine1.end)
+                } else {
+                    generateDiagonalPoints(diagonalLine1.start, diagonalLine1.end)
+                        .intersect(generateDiagonalPoints(diagonalLine2.start, diagonalLine2.end).toSet()).toList()
+                }
+            } else {
+                // Same slope direction, can only intersect if they would be part of the same line.
+                val calculatedDy = diagonalLine1.slope() * (diagonalLine1.end.x - diagonalLine2.end.x)
+                if (calculatedDy == diagonalLine1.end.y - diagonalLine2.end.y) {
+                    generateDiagonalPoints(diagonalLine1.start, diagonalLine1.end)
+                        .intersect(generateDiagonalPoints(diagonalLine2.start, diagonalLine2.end).toSet())
+                        .toList()
+                } else {
+                    listOf()
+                }
+            }
+        }
+
+        private fun diagonalVerticalIntersect(diagonalLine: Line, verticalLine: Line): List<Point> {
+            return if (verticalLine.start.x in (diagonalLine.minX()..diagonalLine.maxX())) {
+                val potentialPoint = if (diagonalLine.slope() > 0) {
+                    Point(verticalLine.start.x, (verticalLine.start.x - diagonalLine.minX()) + diagonalLine.minY())
+                } else {
+                    Point(verticalLine.start.x, diagonalLine.maxY() - (verticalLine.start.x - diagonalLine.minX()))
+                }
+
+                if (potentialPoint.y in (verticalLine.minY()..verticalLine.maxY())) {
+                    listOf(potentialPoint)
                 } else {
                     listOf()
                 }
             } else {
-                if (orientation() == LineOrientation.VERTICAL) {
-                    if (other.orientation() == LineOrientation.HORIZONTAL) {
-                        if (start.x in (other.minX()..other.maxX()) && other.start.y in (minY()..maxY())) {
-                            listOf(Point(start.x, other.start.y))
-                        } else {
-                            listOf()
-                        }
-                    } else {
-                        generateDiagonalPoints(other.start, other.end).filter { point ->
-                            point.x == start.x && point.y in (minY()..maxY())
-                        }.toList()
-                    }
-                } else if (orientation() == LineOrientation.HORIZONTAL) {
-                    if (other.orientation() == LineOrientation.VERTICAL) {
-                        if (start.y in (other.minY()..other.maxY()) && other.start.x in (minX()..maxX())) {
-                            listOf(Point(other.start.x, start.y))
-                        } else {
-                            listOf()
-                        }
-                    } else {
-                        generateDiagonalPoints(other.start, other.end).filter { point ->
-                            point.y == start.y && point.x in (minX()..maxX())
-                        }.toList()
-                    }
+                listOf()
+            }
+        }
+
+        private fun diagonalHorizontalIntersect(diagonalLine: Line, horizontalLine: Line): List<Point> {
+            return if (horizontalLine.start.y in (diagonalLine.minY()..diagonalLine.maxY())) {
+                val potentialPoint = if (diagonalLine.slope() > 0) {
+                    Point(
+                        (horizontalLine.start.y - diagonalLine.minY()) + diagonalLine.minX(), horizontalLine.start.y
+                    )
                 } else {
-                    if (other.orientation() == LineOrientation.VERTICAL) {
-                        generateDiagonalPoints(start, end).filter { point ->
-                            point.x == other.start.x && point.y in (other.minY()..other.maxY())
-                        }.toList()
-                    } else {
-                        generateDiagonalPoints(start, end).filter { point ->
-                            point.y == other.start.y && point.x in (other.minX()..other.maxX())
-                        }.toList()
+                    Point(
+                        (diagonalLine.maxY() - horizontalLine.start.y) + diagonalLine.minX(), horizontalLine.start.y
+                    )
+                }
+
+                if (potentialPoint.x in (horizontalLine.minX()..horizontalLine.maxX())) {
+                    listOf(potentialPoint)
+                } else {
+                    listOf()
+                }
+            } else {
+                listOf()
+            }
+        }
+
+        fun intersection(other: Line): List<Point> {
+            return when (orientation()) {
+                LineOrientation.VERTICAL -> {
+                    when (other.orientation()) {
+                        LineOrientation.VERTICAL -> {
+                            verticalVerticalIntersect(this, other)
+                        }
+                        LineOrientation.HORIZONTAL -> {
+                            horizontalVerticalIntersect(other, this)
+                        }
+                        LineOrientation.DIAGONAL -> {
+                            diagonalVerticalIntersect(other, this)
+                        }
+                    }
+                }
+                LineOrientation.HORIZONTAL -> {
+                    when (other.orientation()) {
+                        LineOrientation.VERTICAL -> {
+                            horizontalVerticalIntersect(this, other)
+                        }
+                        LineOrientation.HORIZONTAL -> {
+                            horizontalHorizontalIntersect(this, other)
+                        }
+                        LineOrientation.DIAGONAL -> {
+                            diagonalHorizontalIntersect(other, this)
+                        }
+                    }
+                }
+                LineOrientation.DIAGONAL -> {
+                    when (other.orientation()) {
+                        LineOrientation.VERTICAL -> {
+                            diagonalVerticalIntersect(this, other)
+                        }
+                        LineOrientation.HORIZONTAL -> {
+                            diagonalHorizontalIntersect(this, other)
+                        }
+                        LineOrientation.DIAGONAL -> {
+                            diagonalDiagonalIntersect(this, other)
+                        }
                     }
                 }
             }
