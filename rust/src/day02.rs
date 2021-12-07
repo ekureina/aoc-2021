@@ -1,7 +1,3 @@
-mod common;
-use std::fs::File;
-use std::io::{self, BufRead};
-
 struct Position {
     position: u32,
     depth: u32,
@@ -38,7 +34,26 @@ enum Command {
     Down(u32),
 }
 
-fn solution1(data: &Vec<Command>) -> u32 {
+#[aoc_generator(day2)]
+fn convert_lines(input: &str) -> Vec<Command> {
+    String::from(input).split("\n")
+        .map(|line| {
+            if let Some((cmd_type, magnitude)) = line.split_once(" ") {
+                match cmd_type {
+                    "forward" => Command::Forward(magnitude.parse().unwrap()),
+                    "up" => Command::Up(magnitude.parse().unwrap()),
+                    "down" => Command::Down(magnitude.parse().unwrap()),
+                    _ => panic!(),
+                }
+            } else {
+                panic!()
+            }
+        })
+        .collect()
+}
+
+#[aoc(day2, part1)]
+fn solution1(data: &[Command]) -> u32 {
     let final_position = data
         .clone()
         .iter()
@@ -54,7 +69,8 @@ fn solution1(data: &Vec<Command>) -> u32 {
     final_position.position * final_position.depth
 }
 
-fn solution2(data: &Vec<Command>) -> u32 {
+#[aoc(day2, part2)]
+fn solution2(data: &[Command]) -> u32 {
     let final_position = data.clone().iter().fold(
         PositionWithAim::new(0, 0, 0),
         |position, command| match command {
@@ -74,40 +90,3 @@ fn solution2(data: &Vec<Command>) -> u32 {
     final_position.position * final_position.depth
 }
 
-fn convert_lines(lines: io::Lines<io::BufReader<File>>) -> Vec<Command> {
-    lines
-        .map(|line| {
-            if let Some((cmd_type, magnitude)) = line.unwrap().split_once(" ") {
-                match cmd_type {
-                    "forward" => Command::Forward(magnitude.parse().unwrap()),
-                    "up" => Command::Up(magnitude.parse().unwrap()),
-                    "down" => Command::Down(magnitude.parse().unwrap()),
-                    _ => panic!(),
-                }
-            } else {
-                panic!()
-            }
-        })
-        .collect()
-}
-
-fn main() {
-    if let Ok(lines) = common::get_test_lines() {
-        let input = convert_lines(lines);
-        let result = solution1(&input);
-        println!("{}", result);
-        let result2 = solution2(&input);
-        println!("{}", result2);
-    } else {
-        println!("error reading file!");
-    }
-    if let Ok(lines) = common::get_lines() {
-        let input = convert_lines(lines);
-        let result = solution1(&input);
-        println!("{}", result);
-        let result2 = solution2(&input);
-        println!("{}", result2);
-    } else {
-        println!("error reading file!");
-    }
-}

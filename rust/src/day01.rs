@@ -1,6 +1,17 @@
-mod common;
+#[aoc_generator(day1)]
+fn generator(input: &str) -> Vec<u32> {
+    String::from(input).split("\n")
+        .map(|line| {
+            if let Ok(parsed) = line.parse() {
+                parsed
+            } else {
+                panic!()
+            }
+        }).collect()
+}
 
-fn solution1(data: &Vec<u32>) -> u32 {
+#[aoc(day1, part1)]
+fn solution1(data: &[u32]) -> u32 {
     data.windows(2).fold(0, |current, pair| {
         if pair[0] < pair[1] {
             current + 1
@@ -10,7 +21,8 @@ fn solution1(data: &Vec<u32>) -> u32 {
     })
 }
 
-fn solution2(data: &Vec<u32>) -> u32 {
+#[aoc(day1, part2)]
+fn solution2(data: &[u32]) -> u32 {
     data.windows(3)
         .map(|window| window.iter().fold(0, |sum, i| sum + i))
         .collect::<Vec<u32>>()
@@ -24,23 +36,3 @@ fn solution2(data: &Vec<u32>) -> u32 {
         })
 }
 
-fn main() {
-    if let Ok(lines) = common::get_test_lines() {
-        let ints = common::convert_lines(lines);
-        let result = solution1(&ints);
-        println!("{}", result);
-        let result2 = solution2(&ints);
-        println!("{}", result2);
-    } else {
-        println!("error reading file!");
-    }
-    if let Ok(lines) = common::get_lines() {
-        let ints = common::convert_lines(lines);
-        let result = solution1(&ints);
-        println!("{}", result);
-        let result2 = solution2(&ints);
-        println!("{}", result2);
-    } else {
-        println!("error reading file!");
-    }
-}

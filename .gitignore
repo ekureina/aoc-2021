@@ -3,6 +3,7 @@ kotlin/.idea
 build
 rust/debug/
 rust/target/
+rust/input/
 rust/Cargo.lock
 c/build/
 **/*.rs.bk
