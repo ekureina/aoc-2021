@@ -15,7 +15,6 @@ fun main() {
                 latestMax
             }
         }
-
     }
 
     fun part2(input: List<String>): Long {
