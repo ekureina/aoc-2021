@@ -36,7 +36,8 @@ enum Command {
 
 #[aoc_generator(day2)]
 fn convert_lines(input: &str) -> Vec<Command> {
-    String::from(input).split("\n")
+    String::from(input)
+        .split("\n")
         .map(|line| {
             if let Some((cmd_type, magnitude)) = line.split_once(" ") {
                 match cmd_type {
@@ -89,4 +90,3 @@ fn solution2(data: &[Command]) -> u32 {
     );
     final_position.position * final_position.depth
 }
-

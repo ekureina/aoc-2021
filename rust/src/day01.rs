@@ -1,13 +1,15 @@
 #[aoc_generator(day1)]
 fn generator(input: &str) -> Vec<u32> {
-    String::from(input).split("\n")
+    String::from(input)
+        .split("\n")
         .map(|line| {
             if let Ok(parsed) = line.parse() {
                 parsed
             } else {
                 panic!()
             }
-        }).collect()
+        })
+        .collect()
 }
 
 #[aoc(day1, part1)]
@@ -35,4 +37,3 @@ fn solution2(data: &[u32]) -> u32 {
             }
         })
 }
-
